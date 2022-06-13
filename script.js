@@ -324,10 +324,11 @@ document.addEventListener("touchstart", (e) => {
 document.addEventListener("touchmove", (e) => {
     e.preventDefault()
 
-    let swipe = new Vector(e.touches[0].pageX - last_swipe.x, e.touches[0].pageY - last_swipe.y)
-    let angle = Math.atan2(swipe.x, swipe.y) / Math.PI // 1, 0
+    let swipe       = new Vector(e.touches[0].pageX, e.touches[0].pageY)
+    let distance    = Vcetor.subtract(swipe, last_swipe)
+    let angle       = Math.atan2(distance.x, distance.y) / Math.PI // 1, 0
 
-    if(Vector.magnitude(swipe) < swipe_threshold) { return }
+    if(Vector.magnitude(distance) < swipe_threshold) { return }
 
     if(angle < 0) {
         if(angle > -1/8)        { /**/ }
@@ -335,7 +336,6 @@ document.addEventListener("touchmove", (e) => {
         else if(angle > -5/8)   { moving_left = true }
         else if(angle > -7/8)   { jumping = true; moving_left = true }
         else                    { jumping = true }
-        
     } else {
         if(angle < 1/8)         { /**/ }
         else if(angle < 3/8)    { moving_right = true; /**/ }
