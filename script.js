@@ -22,6 +22,9 @@ const camera_offset_history         = []
 const camera_offset_history_length  = 10
 
 
+const swipe_threshold               = 10;
+
+
 
 class Point {
     constructor(x = 0, y = 0) {
@@ -206,7 +209,7 @@ function physics_loop() {
                 if(moving_right)    { new_vel.x += move_force }
                 if(jumping) {
                     new_vel.y += jump_force
-                    jumping = false
+                    //jumping = false
                 }
             }
         }
@@ -292,21 +295,51 @@ function draw() {
 
 
 
-window.addEventListener("keypress", (e) => {
+onkeydown = (e) => {
+    e.preventDefault()
+
     switch(e.key.toLowerCase()) {
         case "w": jumping       = true; break
         case "a": moving_left   = true; break
         case "d": moving_right  = true; break
     }
-})
+}
 
-window.addEventListener("keyup", (e) => {
+onkeyup = (e) => {
+    e.preventDefault()
+
     switch(e.key.toLowerCase()) {
         case "w": jumping       = false; break
         case "a": moving_left   = false; break
         case "d": moving_right  = false; break
     }
-})
+}
+
+ontouchstart = (e) => {
+    e.preventDefault()
+
+    last_swipe_x = new Vector(e.touches[0].pageX, e.touches[0].pageY)
+}
+
+ontouchmove = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+
+    let swipe = new Vector(e.touches[0].pageX - last_swipe.x, e.touches[0].pageY - last_swipe.y)
+    let angle = Math.atan2(swipe.x, swipe.y) / Math.PI
+
+    if(swipe.magnitude() < swipe_threshold) { return }
+
+    if(angle < 1/8 || angle >= 15/8)    { moving_left = true }
+    else if(angle < 3/8)                { moving_left = true; jumping = true }
+    else if(angle < 5/8)                { jumping = true }
+    else if(angle < 7/8)                { moving_right = true; jumping = true }
+    else if(angle < 9/8)                { moving_right = true }
+    else if(angle < 11/8)               { /**/ }
+    else if(angle < 13/8)               { /**/ }
+    else                                { /**/ }
+
+}
 
 
 
