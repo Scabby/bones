@@ -315,13 +315,13 @@ onkeyup = (e) => {
     }
 }
 
-ontouchstart = (e) => {
+document.addEventListener("touchstart", (e) => {
     e.preventDefault()
 
     last_swipe = new Vector(e.touches[0].pageX, e.touches[0].pageY)
-}
+}, false)
 
-ontouchmove = (e) => {
+document.addEventListener("touchmove", (e) => {
     e.preventDefault()
 
     let swipe = new Vector(e.touches[0].pageX - last_swipe.x, e.touches[0].pageY - last_swipe.y)
@@ -342,7 +342,7 @@ ontouchmove = (e) => {
         else if(angle < 7/8)    { moving_right = true; /**/ }
         else                    { /**/ }
     }
-}
+}, false)
 
 
 
