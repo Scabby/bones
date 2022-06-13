@@ -339,7 +339,7 @@ ontouchmove = (e) => {
         if(angle < 1/8)         { jumping = true }
         else if(angle < 3/8)    { jumping = true; moving_right = true }
         else if(angle < 5/8)    { moving_right = true }
-        else if angle < 7/8     { moving_right = true; /**/ }
+        else if(angle < 7/8)    { moving_right = true; /**/ }
         else                    { /**/ }
     }
 }
