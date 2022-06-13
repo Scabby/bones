@@ -323,12 +323,11 @@ ontouchstart = (e) => {
 
 ontouchmove = (e) => {
     e.preventDefault()
-    e.stopPropagation()
 
     let swipe = new Vector(e.touches[0].pageX - last_swipe.x, e.touches[0].pageY - last_swipe.y)
     let angle = Math.atan2(swipe.x, swipe.y) / Math.PI
 
-    if(swipe.magnitude() < swipe_threshold) { return }
+    if(Vector.magnitude(swipe) < swipe_threshold) { return }
 
     if(angle < 1/8 || angle >= 15/8)    { moving_left = true }
     else if(angle < 3/8)                { moving_left = true; jumping = true }
@@ -338,12 +337,11 @@ ontouchmove = (e) => {
     else if(angle < 11/8)               { /**/ }
     else if(angle < 13/8)               { /**/ }
     else                                { /**/ }
-
 }
 
 
 
-window.onload = () => {
+onload = () => {
     canvas  = document.getElementsByTagName("canvas")[0]
     ctx     = canvas.getContext("2d")
 
