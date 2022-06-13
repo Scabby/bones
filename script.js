@@ -319,7 +319,7 @@ document.addEventListener("touchstart", (e) => {
     e.preventDefault()
 
     last_swipe = new Vector(e.touches[0].pageX, e.touches[0].pageY)
-}, false)
+}, { passive: false} )
 
 document.addEventListener("touchmove", (e) => {
     e.preventDefault()
@@ -342,7 +342,7 @@ document.addEventListener("touchmove", (e) => {
         else if(angle < 7/8)    { moving_right = true; /**/ }
         else                    { /**/ }
     }
-}, false)
+}, { passive: false} )
 
 document.addEventListener("touchend". (e) => {
     e.preventDefault()
@@ -350,7 +350,7 @@ document.addEventListener("touchend". (e) => {
     jumping         = false
     moving_right    = false
     moving_left     = false
-}. false)
+}, { passive: false} )
 
 
 
