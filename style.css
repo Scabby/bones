@@ -1,0 +1,28 @@
+html {
+    background-color: #000;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+
+canvas {
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    object-fit: contain;
+    position: fixed;
+    
+    width: min(1000px, 100vw);
+    height: min(1000px, 100vh);
+    
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
