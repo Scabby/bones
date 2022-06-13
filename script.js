@@ -325,18 +325,23 @@ ontouchmove = (e) => {
     e.preventDefault()
 
     let swipe = new Vector(e.touches[0].pageX - last_swipe.x, e.touches[0].pageY - last_swipe.y)
-    let angle = Math.atan2(swipe.x, swipe.y) / Math.PI
+    let angle = Math.atan2(swipe.x, swipe.y) / Math.PI // 1, 0
 
     if(Vector.magnitude(swipe) < swipe_threshold) { return }
 
-    if(angle < 1/8 || angle >= 15/8)    { moving_left = true }
-    else if(angle < 3/8)                { moving_left = true; jumping = true }
-    else if(angle < 5/8)                { jumping = true }
-    else if(angle < 7/8)                { moving_right = true; jumping = true }
-    else if(angle < 9/8)                { moving_right = true }
-    else if(angle < 11/8)               { /**/ }
-    else if(angle < 13/8)               { /**/ }
-    else                                { /**/ }
+    if(angle < 0) {
+        if(angle > -1/8)        { jumping = true }
+        else if(angle > -3/8)   { jumping = true; moving_left = true }
+        else if(angle > -5/8)   { moving_left = true }
+        else if angle > -7/8    { mpving_left = true; /**/ }
+        else                    { /**/ }
+    } else {
+        if(angle < 1/8)         { jumping = true }
+        else if(angle < 3/8)    { jumping = true; moving_right = true }
+        else if(angle < 5/8)    { moving_right = true }
+        else if angle < 7/8     { moving_right = true; /**/ }
+        else                    { /**/ }
+    }
 }
 
 
