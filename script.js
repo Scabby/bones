@@ -344,6 +344,14 @@ document.addEventListener("touchmove", (e) => {
     }
 }, false)
 
+document.addEventListener("touchend". (e) => {
+    e.preventDefault()
+    
+    jumping         = false
+    moving_right    = false
+    moving_left     = false
+}. false)
+
 
 
 onload = () => {
