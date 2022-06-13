@@ -82,7 +82,7 @@ class Vector {
         return new Vector(vector.x + other.x, vector.y + other.y)
     }
 
-    static substract(vector, other) {
+    static subtract(vector, other) {
         return new Vector(vector.x - other.x, vector.y -= other.y)
     }
 }
