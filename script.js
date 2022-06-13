@@ -330,9 +330,7 @@ document.addEventListener("touchmove", (e) => {
 
     if(Vector.magnitude(distance) < swipe_threshold) { return }
 
-    console.log(last_swipe)
     console.log(distance)
-    console.log()
     
     if(angle < 0) {
         if(angle > -1/8)        { /**/ }
