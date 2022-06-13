@@ -326,7 +326,7 @@ document.addEventListener("touchmove", (e) => {
 
     let swipe       = new Vector(e.touches[0].pageX, e.touches[0].pageY)
     let distance    = Vcetor.subtract(swipe, last_swipe)
-    let angle       = Math.atan2(distance.x, distance.y) / Math.PI // 1, 0
+    let angle       = Math.atan2(distance.x, distance.y) / Math.PI
 
     if(Vector.magnitude(distance) < swipe_threshold) { return }
 
