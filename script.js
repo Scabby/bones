@@ -330,18 +330,21 @@ document.addEventListener("touchmove", (e) => {
     if(Vector.magnitude(swipe) < swipe_threshold) { return }
 
     if(angle < 0) {
-        if(angle > -1/8)        { jumping = true }
-        else if(angle > -3/8)   { jumping = true; moving_left = true }
+        if(angle > -1/8)        { /**/ }
+        else if(angle > -3/8)   { moving_left = true; /**/ }
         else if(angle > -5/8)   { moving_left = true }
-        else if(angle > -7/8)   { moving_left = true; /**/ }
-        else                    { /**/ }
+        else if(angle > -7/8)   { jumping = true; moving_left = true }
+        else                    { jumping = true }
+        
     } else {
-        if(angle < 1/8)         { jumping = true }
-        else if(angle < 3/8)    { jumping = true; moving_right = true }
+        if(angle < 1/8)         { /**/ }
+        else if(angle < 3/8)    { moving_right = true; /**/ }
         else if(angle < 5/8)    { moving_right = true }
-        else if(angle < 7/8)    { moving_right = true; /**/ }
-        else                    { /**/ }
+        else if(angle < 7/8)    { jumping = true; moving_right = true }
+        else                    { jumping = true }
     }
+    
+    last_swipe = swipe
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
