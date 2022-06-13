@@ -318,7 +318,7 @@ onkeyup = (e) => {
 ontouchstart = (e) => {
     e.preventDefault()
 
-    last_swipe_x = new Vector(e.touches[0].pageX, e.touches[0].pageY)
+    last_swipe = new Vector(e.touches[0].pageX, e.touches[0].pageY)
 }
 
 ontouchmove = (e) => {
