@@ -83,7 +83,7 @@ class Vector {
     }
 
     static subtract(vector, other) {
-        return new Vector(vector.x - other.x, vector.y -= other.y)
+        return new Vector(vector.x - other.x, vector.y - other.y)
     }
 }
 
@@ -348,7 +348,7 @@ document.addEventListener("touchmove", (e) => {
         else                    { jumping = true }
     }
     
-    last_swipe = new Vector(swipe.x, swipe.y)
+    last_swipe = swipe
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
