@@ -344,7 +344,7 @@ document.addEventListener("touchmove", (e) => {
         else                    { jumping = true }
     }
     
-    last_swipe = swipe
+    last_swipe = new Vector(swipe.x, swipe.y)
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
