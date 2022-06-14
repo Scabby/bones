@@ -1,28 +1,28 @@
-let moving_left             = false
-let moving_right            = false
-let jumping                 = false
+let moving_left         = false
+let moving_right        = false
+let jumping             = false
 
-const fixed_delta_time      = 16;
-const gravity               = 0.04;
-const friction              = 0.1
-const bounce                = 0 // 0..1
-const grounding_distance    = 0.5
+let fixed_delta_time    = 16
+let gravity             = 0.05
+let friction            = 0.1 // 0..1
+let bounce              = 0.5 // 0..1
+let grounding_distance  = 0.5
 
-const move_force            = 0.15
-const jump_force            = 1
-const max_velocity          = 10
-const stop_velocity         = 0.1
+let move_force          = 0.15
+let jump_force          = 1.1
+let max_velocity        = 10
+let stop_velocity       = 0.1
 
 const objects = []
 
 
-const max_camera_offset             = 32
-const camera_offset_multiplier      = 10
+let max_camera_offset               = 32
+let camera_offset_multiplier        = 10
 const camera_offset_history         = []
-const camera_offset_history_length  = 10
+const camera_offset_history_length  = 15
 
 
-const swipe_threshold               = 10;
+let swipe_threshold = 10;
 
 
 
@@ -82,8 +82,8 @@ class Vector {
         return new Vector(vector.x + other.x, vector.y + other.y)
     }
 
-    static subtract(vector, other) {
-        return new Vector(vector.x - other.x, vector.y - other.y)
+    static substract(vector, other) {
+        return new Vector(vector.x - other.x, vector.y -= other.y)
     }
 }
 
@@ -91,17 +91,19 @@ class Rectangle {
     constructor(
         width           = 1,
         height          = 1,
-        position        = new Point(0, 0),
+        x               = 0,
+        y               = 0,
         mass            = 1,
-        velocity        = new Vector(0, 0),
+        velocity_x      = 0,
+        velocity_y      = 0,
         is_immovable    = false,
         is_player       = false
     ) {
         this.width          = width
         this.height         = height
         this.mass           = mass
-        this.position       = position,
-        this.velocity       = velocity,
+        this.position       = new Point(x, y),
+        this.velocity       = new Vector(velocity_x, velocity_y),
         this.is_immovable   = is_immovable
         this.is_player      = is_player
     }
@@ -149,24 +151,35 @@ class Rectangle {
                 current.velocity.x *= -bounce
             } else {
                 current.position.y += y_overlap
-                current.velocity.y *= -bounce
+                //current.velocity.y *= -bounce
+                current.velocity.y = 0
             }
         } else {
+            let average = new Point(
+                (current.velocity.x + target.velocity.x) / 2,
+                (current.velocity.y + target.velocity.y) / 2
+            )
+
             if(is_x) {
                 current.position.x  += x_overlap
                 target.position.x   -= x_overlap
+
+                current.velocity.x  = average.x
+                target.velocity.x   = average.x
             } else {
                 current.position.y  += y_overlap
                 target.position.y   -= y_overlap
+
+                current.velocity.y  = average.y
+                target.velocity.y   = average.y
             }
 
-            let average_x_vel   = (target.velocity.x + current.velocity.x) / 2
-            let average_y_vel   = (target.velocity.y + current.velocity.y) / 2
-
-            current.velocity.x  = average_x_vel - current.velocity.x * bounce
-            current.velocity.y  = average_y_vel - current.velocity.y * bounce
-            target.velocity.x   = average_x_vel + target.velocity.x * bounce
-            target.velocity.y   = average_y_vel + target.velocity.y * bounce
+            //let c_inv_mass  = 1 / current.mass
+            //let t_inv_mass  = 1 / target.mass
+            // * (c_inv_mass / (c_inv_mass + t_inv_mass))
+            // * (c_inv_mass / (c_inv_mass + t_inv_mass))
+            // * (t_inv_mass / (c_inv_mass + t_inv_mass))
+            // * (t_inv_mass / (c_inv_mass + t_inv_mass))
         }
     }
 
@@ -179,17 +192,19 @@ class Rectangle {
 }
 
 function down_raycast(current, distance) {
-    for(let target of objects) {
+    for(const target of objects) {
         if(current === target) { continue }
 
-        return (target.position.x - target.width / 2 < current.position.x + current.width / 2
-            &&  target.position.x + target.width / 2 > current.position.x - current.width / 2
-            &&  target.position.y < current.position.y
+        if(     current.position.x - current.width / 2 < target.position.x + target.width / 2
+            &&  current.position.x + current.width / 2 > target.position.x - target.width / 2
+            &&  current.position.y > target.position.y
             &&  Math.abs(
                     (target.position.y + target.height / 2)
                 -   (current.position.y - current.height / 2)
                 ) <= distance
-        )
+        ) {
+            return true
+        }
     }
     return false
 }
@@ -197,7 +212,7 @@ function down_raycast(current, distance) {
 
 
 function physics_loop() {
-    for(current of objects) {
+    for(const current of objects) {
         if(current.is_immovable) { continue }
 
         let new_vel     = new Vector(current.velocity.x, current.velocity.y)
@@ -207,10 +222,7 @@ function physics_loop() {
             if(is_grounded) {
                 if(moving_left)     { new_vel.x -= move_force }
                 if(moving_right)    { new_vel.x += move_force }
-                if(jumping) {
-                    new_vel.y += jump_force
-                    //jumping = false
-                }
+                if(jumping)         { new_vel.y = jump_force }
             }
         }
 
@@ -225,17 +237,15 @@ function physics_loop() {
         }
 
         current.velocity = Vector.clamp_magnitude(new_vel, max_velocity)
-        current.update()
     }
 
-    for(current of objects) {
+    for(const current of objects) {
         if(current.is_immovable) { continue }
 
-        for(target of objects) {
+        for(const target of objects) {
             if(current === target) { continue }
 
             if(Rectangle.overlaps(current, target)) {
-                console.log("collision")
                 Rectangle.collide(current, target)
             }
         }
@@ -244,6 +254,8 @@ function physics_loop() {
         current.update()
     }
 }
+
+
 
 function get_camera_offset(target) {
     let camera_offset   = new Vector(target.position.x, target.position.y)
@@ -258,19 +270,21 @@ function get_camera_offset(target) {
 
     velocity_offset = Vector.clamp_magnitude(velocity_offset, max_camera_offset)
 
+    velocity_offset.x = Math.round(velocity_offset.x)
+    velocity_offset.y = Math.round(velocity_offset.y)
+
     if(camera_offset_history.length >= camera_offset_history_length) {
-        camera_offset_history.shift()
+        camera_offset_history.pop()
     }
-    camera_offset_history.push(velocity_offset)
+    camera_offset_history.unshift(velocity_offset)
 
     for(let i = 0; i < camera_offset_history.length; i++) {
-        let target  = camera_offset_history[i]
-        average     = Vector.add(average, target)
+        average = Vector.add(average, camera_offset_history[i])
     }
 
     return new Vector(
-        camera_offset.x + average.x / camera_offset_history.length,
-        camera_offset.y + average.y / camera_offset_history.length
+        Math.round(camera_offset.x + average.x / camera_offset_history.length),
+        Math.round(camera_offset.y + average.y / camera_offset_history.length)
     )
 }
 
@@ -281,16 +295,16 @@ function draw() {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle = "#e3e3e3"
 
-    for(o of objects) {
+    for(const o of objects) {
         ctx.fillRect(
-            Math.floor(o.position.x - (o.width / 2) + 0.5 - camera_offset.x),
-            Math.floor(canvas.height - o.position.y - (o.height / 2) + 0.5 + camera_offset.y),
+            Math.floor(Math.round(o.position.x) - (o.width / 2) + 0.5 - camera_offset.x),
+            Math.floor(canvas.height - Math.round(o.position.y) - (o.height / 2) + 0.5 + camera_offset.y),
             Math.floor(o.width),
             Math.floor(o.height),
         )
     }
 
-    requestAnimationFrame(draw);
+    requestAnimationFrame(draw)
 }
 
 
@@ -331,7 +345,7 @@ document.addEventListener("touchmove", (e) => {
     if(Vector.magnitude(distance) < swipe_threshold) { return }
 
     console.log(distance)
-    
+
     if(angle < 0) {
         if(angle > -1/8)        { jumping = true }
         else if(angle > -3/8)   { jumping = true; moving_left = true}
@@ -345,13 +359,13 @@ document.addEventListener("touchmove", (e) => {
         else if(angle < 7/8)    { moving_right = true; /**/ }
         else                    { /**/ }
     }
-    
+
     last_swipe = swipe
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
     e.preventDefault()
-    
+
     jumping         = false
     moving_right    = false
     moving_left     = false
@@ -363,10 +377,13 @@ onload = () => {
     canvas  = document.getElementsByTagName("canvas")[0]
     ctx     = canvas.getContext("2d")
 
-    player  = new Rectangle(16, 16, new Point(0, 8), 1, new Vector(0, 0), false, true)
+    player  = new Rectangle(16, 16, 0, 8, 1, 0, 0, false, true)
 
     objects.push(player)
-    objects.push(new Rectangle(250, 10, new Point(0, -5), 0, new Vector(0, 0), true))
+    objects.push(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
+    objects.push(new Rectangle(10, 20, 50, 10))
+    objects.push(new Rectangle(30, 10, -80, 5))
+    objects.push(new Rectangle(10, 10, 0, 100))
 
     requestAnimationFrame(draw)
     setInterval(physics_loop, fixed_delta_time)
