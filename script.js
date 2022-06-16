@@ -310,8 +310,17 @@ function draw() {
 
 
 onkeydown = (e) => {
-    e.preventDefault()
-
+    let is_ctrl     = navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey
+    let is_resize   = is_ctrl && (
+            e.key == "-"
+        ||  e.key == "_"
+        ||  e.key == "="
+        ||  e.key == "+"
+    )
+    
+    if(is_resize)   { return } 
+    else            { e.preventDefault() }
+    
     switch(e.key.toLowerCase()) {
         case "w": jumping       = true; break
         case "a": moving_left   = true; break
