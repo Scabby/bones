@@ -122,7 +122,6 @@ class Rectangle {
         this.height         = height
         this.mass           = mass
         this.position       = new Point(x, y),
-        this.int_position   = new Point(Math.round(x), Math.round(y)),
         this.velocity       = new Vector(velocity_x, velocity_y),
         this.is_immovable   = is_immovable
         this.is_player      = is_player
@@ -135,16 +134,13 @@ class Rectangle {
     move() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
-        
-        this.int_position.x = Math.round(this.position.x)
-        this.int_position.y = Math.round(this.position.y)
     }
 
     static collide(current, target) {
         if(current.is_immovable) { return }
 
-        let x_diff = current.int_position.x - target.int_position.x
-        let y_diff = current.int_position.y - target.int_position.y
+        let x_diff = current.position.x - target.position.x
+        let y_diff = current.position.y - target.position.y
 
         // fix
         let is_x =  Math.abs(x_diff / (current.width - target.width))
@@ -154,25 +150,26 @@ class Rectangle {
         let y_overlap = 0
 
         if(x_diff > 0)  {
-            x_overlap = Math.floor(target.int_position.x + target.width / 2)
-                    -   Math.floor(current.int_position.x - current.width / 2)
+            x_overlap = (target.position.x + target.width / 2)
+                    -   (current.position.x - current.width / 2)
         } else {
-            x_overlap = Math.floor(target.int_position.x - target.width / 2)
-                    -   Math.floor(current.int_position.x + current.width / 2)
+            x_overlap = (target.position.x - target.width / 2)
+                    -   (current.position.x + current.width / 2)
         }
 
         if(y_diff > 0)  {
-            y_overlap = Math.floor(target.int_position.y + target.height / 2)
-                    -   Math.floor(current.int_position.y - current.height / 2)
+            y_overlap = (target.position.y + target.height / 2)
+                    -   (current.position.y - current.height / 2)
         } else {
-            y_overlap = Math.floor(target.int_position.y - target.height / 2)
-                    -   Math.floor(current.int_position.y + current.height / 2)
+            y_overlap = (target.position.y - target.height / 2)
+                    -   (current.position.y + current.height / 2)
         }
 
         if(target.is_immovable) {
             if(is_x) {
                 current.position.x += x_overlap
-                current.velocity.x *= -bounce
+                //current.velocity.x *= -bounce
+                current.velocity.x = 0
             } else {
                 current.position.y += y_overlap
                 //current.velocity.y *= -bounce
@@ -205,14 +202,6 @@ class Rectangle {
             // * (t_inv_mass / (c_inv_mass + t_inv_mass))
             // * (t_inv_mass / (c_inv_mass + t_inv_mass))
         }
-        
-        /*
-        for(const o of objects) {
-            if(Rectangle.overlaps(target, o)) {
-                Rectangle.collide(target, o)
-            }
-        }
-        */
     }
 
     static overlaps(current, target) {
@@ -226,17 +215,17 @@ class Rectangle {
 function down_raycast(current, distance) {
     for(const target of objects) {
         if(current === target) { continue }
-
-        if(     current.int_position.x - Math.floor(current.width / 2)
-            <   Math.floor(target.position.x + target.width / 2)
+        
+        if(     current.position.x - current.width / 2
+            <   target.position.x + target.width / 2
            
-            &&  current.int_position.x + Math.floor(current.width / 2)
-            >   Math.floor(target.position.x - target.width / 2)
+            &&  current.position.x + current.width / 2
+            >   target.position.x - target.width / 2
             
             &&  current.int_position.y > target.int_position.y
             &&  Math.abs(
-                    Math.floor(target.int_position.y + target.height / 2)
-                -   Math.floor(current.int_position.y - current.height / 2)
+                    (target.position.y + target.height / 2)
+                -   (current.position.y - current.height / 2)
                 ) <= distance
         ) {
             return true
@@ -292,8 +281,7 @@ function physics_loop() {
             }
         }
 
-        current.velocity = Vector.clamp_magnitude(current.velocity, max_velocity)
-        
+        current.velocity = Vector.clamp_axes(current.velocity, max_velocity)
         current.move()
     }
     
