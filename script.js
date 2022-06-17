@@ -440,6 +440,8 @@ onload = () => {
     ctx     = canvas.getContext("2d")
 
     player  = new Rectangle(16, 16, 0, 8, 1, 0, 0, false, true)
+    
+    current_camera_offset = get_camera_offset(player)
 
     objects.push(player)
     objects.push(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
@@ -447,6 +449,6 @@ onload = () => {
     objects.push(new Rectangle(30, 10, -80, 5))
     objects.push(new Rectangle(10, 10, 0, 100))
 
-    setInterval(physics_loop, fixed_delta_time)
     requestAnimationFrame(draw)
+    setInterval(physics_loop, fixed_delta_time)
 }
