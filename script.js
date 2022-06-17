@@ -6,7 +6,7 @@ let fixed_delta_time    = 16
 let gravity             = 0.05
 let friction            = 0.1 // 0..1
 let bounce              = 0.5 // 0..1
-let grounding_distance  = 0.5
+let grounding_distance  = 1
 
 let move_force          = 0.15
 let jump_force          = 1.1
@@ -18,8 +18,9 @@ const objects = []
 
 let max_camera_offset               = 32
 let camera_offset_multiplier        = 10
+let camera_offset_history_length    = 15
 const camera_offset_history         = []
-const camera_offset_history_length  = 15
+
 
 
 let swipe_threshold = 10;
@@ -59,6 +60,26 @@ class Vector {
         out_vec.x *= magnitude
         out_vec.y *= magnitude
 
+        return out_vec
+    }
+    
+    static clamp_axes(vector, magnitude) {
+        let change_x    = Math.abs(vector.x) <= magnitude
+        let change_y    = Math.abs(vector.y) <= magnitude
+        let out_vec     = new Vector(vector.x, vector.y)
+        
+        if(!change_x && !change_y) { return out_vec }
+        
+        if(change_x) {
+            if(vector.x < 0)    { out_vec.x = -magnitude }
+            else                { out_vec.x = magnitude }
+        }
+        
+        if(change_y) {
+            if(vector.y < 0)    { out_vec.y = -magnitude }
+            else                { out_vec.y = magnitude }
+        }
+        
         return out_vec
     }
 
@@ -103,6 +124,7 @@ class Rectangle {
         this.height         = height
         this.mass           = mass
         this.position       = new Point(x, y),
+        this.int_position   = new Point(Math.round(x), Math.round(y)),
         this.velocity       = new Vector(velocity_x, velocity_y),
         this.is_immovable   = is_immovable
         this.is_player      = is_player
@@ -112,17 +134,21 @@ class Rectangle {
         Vector.add(this.velocity, vector)
     }
 
-    update() {
+    move() {
         this.position.x += this.velocity.x
         this.position.y += this.velocity.y
+        
+        this.int_position.x = Math.round(this.position.x)
+        this.int_position.y = Math.round(this.position.y)
     }
 
     static collide(current, target) {
         if(current.is_immovable) { return }
 
-        let x_diff = current.position.x - target.position.x
-        let y_diff = current.position.y - target.position.y
+        let x_diff = current.int_position.x - target.int_position.x
+        let y_diff = current.int_position.y - target.int_position.y
 
+        // fix
         let is_x =  Math.abs(x_diff / (current.width - target.width))
                 >   Math.abs(y_diff / (current.height - target.height))
 
@@ -130,19 +156,19 @@ class Rectangle {
         let y_overlap = 0
 
         if(x_diff > 0)  {
-            x_overlap = (target.position.x + target.width / 2)
-                    -   (current.position.x - current.width / 2)
+            x_overlap = Math.floor(target.int_position.x + target.width / 2)
+                    -   Math.floor(current.int_position.x - current.width / 2)
         } else {
-            x_overlap = (target.position.x - target.width / 2)
-                    -   (current.position.x + current.width / 2)
+            x_overlap = Math.floor(target.int_position.x - target.width / 2)
+                    -   Math.floor(current.int_position.x + current.width / 2)
         }
 
         if(y_diff > 0)  {
-            y_overlap = (target.position.y + target.height / 2)
-                    -   (current.position.y - current.height / 2)
+            y_overlap = Math.floor(target.int_position.y + target.height / 2)
+                    -   Math.floor(current.int_position.y - current.height / 2)
         } else {
-            y_overlap = (target.position.y - target.height / 2)
-                    -   (current.position.y + current.height / 2)
+            y_overlap = Math.floor(target.int_position.y - target.height / 2)
+                    -   Math.floor(current.int_position.y + current.height / 2)
         }
 
         if(target.is_immovable) {
@@ -181,6 +207,12 @@ class Rectangle {
             // * (t_inv_mass / (c_inv_mass + t_inv_mass))
             // * (t_inv_mass / (c_inv_mass + t_inv_mass))
         }
+        
+        for(const o of objects) {
+            if(overlaps(target, o)) {
+                collide(target, o)
+            }
+        }
     }
 
     static overlaps(current, target) {
@@ -195,12 +227,16 @@ function down_raycast(current, distance) {
     for(const target of objects) {
         if(current === target) { continue }
 
-        if(     current.position.x - current.width / 2 < target.position.x + target.width / 2
-            &&  current.position.x + current.width / 2 > target.position.x - target.width / 2
-            &&  current.position.y > target.position.y
+        if(     current.int_position.x - Math.floor(current.width / 2)
+            <   Math.floor(target.position.x + target.width / 2)
+           
+            &&  current.int_position.x + Math.floor(current.width / 2)
+            >   Math.floor(target.position.x - target.width / 2)
+            
+            &&  current.int_position.y > target.int_position.y
             &&  Math.abs(
-                    (target.position.y + target.height / 2)
-                -   (current.position.y - current.height / 2)
+                    Math.floor(target.int_position.y + target.height / 2)
+                -   Math.floor(current.int_position.y - current.height / 2)
                 ) <= distance
         ) {
             return true
@@ -226,17 +262,23 @@ function physics_loop() {
             }
         }
 
-        new_vel.y -= gravity
-
         if(is_grounded) {
             new_vel.x -= new_vel.x * friction
+            
+            if(new_vel.y < stop_velocity && new_vel.y > -stop_velocity) {
+                new_vel.y = 0
+                current.position.y = Math.round(current.position.y)
+            }
+            
+            if(new_vel.x < stop_velocity && new_vel.x > -stop_velocity) {
+                new_vel.x = 0
+                current.position.x = Math.round(current.position.x)
+            }
+        } else {
+            new_vel.y -= gravity
         }
 
-        if(new_vel.x < stop_velocity && new_vel.x > -stop_velocity) {
-            new_vel.x = 0
-        }
-
-        current.velocity = Vector.clamp_magnitude(new_vel, max_velocity)
+        current.velocity = Vector.clamp_axes(new_vel, max_velocity)
     }
 
     for(const current of objects) {
@@ -251,8 +293,11 @@ function physics_loop() {
         }
 
         current.velocity = Vector.clamp_magnitude(current.velocity, max_velocity)
-        current.update()
+        
+        current.move()
     }
+    
+    current_camera_offset = get_camera_offset(player)
 }
 
 
@@ -261,19 +306,16 @@ function get_camera_offset(target) {
     let camera_offset   = new Vector(target.position.x, target.position.y)
     let average         = new Vector(0, 0)
     let velocity_offset = new Vector(
-        target.velocity.x * camera_offset_multiplier,
-        target.velocity.y * camera_offset_multiplier
+        Math.round(target.velocity.x * camera_offset_multiplier),
+        Math.round(target.velocity.y * camera_offset_multiplier)
     )
 
     camera_offset.x -= canvas.width / 2
     camera_offset.y -= canvas.height / 2
 
-    velocity_offset = Vector.clamp_magnitude(velocity_offset, max_camera_offset)
+    velocity_offset = Vector.clamp_axes(velocity_offset, max_camera_offset)
 
-    velocity_offset.x = Math.round(velocity_offset.x)
-    velocity_offset.y = Math.round(velocity_offset.y)
-
-    if(camera_offset_history.length >= camera_offset_history_length) {
+    while(camera_offset_history.length >= camera_offset_history_length) {
         camera_offset_history.pop()
     }
     camera_offset_history.unshift(velocity_offset)
@@ -289,16 +331,25 @@ function get_camera_offset(target) {
 }
 
 function draw() {
-    let camera_offset = get_camera_offset(player)
-
     ctx.fillStyle = "#353535"
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle = "#e3e3e3"
 
     for(const o of objects) {
         ctx.fillRect(
-            Math.floor(Math.round(o.position.x) - (o.width / 2) + 0.5 - camera_offset.x),
-            Math.floor(canvas.height - Math.round(o.position.y) - (o.height / 2) + 0.5 + camera_offset.y),
+            Math.floor(
+                    Math.round(o.position.x)
+                -   (o.width / 2)
+                -   current_camera_offset.x
+                +   0.5
+            ),
+            Math.floor(
+                    canvas.height
+                -   Math.round(o.position.y)
+                -   (o.height / 2)
+                +   current_camera_offset.y
+                +   0.5
+            ),
             Math.floor(o.width),
             Math.floor(o.height),
         )
