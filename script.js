@@ -64,11 +64,9 @@ class Vector {
     }
     
     static clamp_axes(vector, magnitude) {
-        let change_x    = Math.abs(vector.x) <= magnitude
-        let change_y    = Math.abs(vector.y) <= magnitude
+        let change_x    = Math.abs(vector.x) >= magnitude
+        let change_y    = Math.abs(vector.y) >= magnitude
         let out_vec     = new Vector(vector.x, vector.y)
-        
-        if(!change_x && !change_y) { return out_vec }
         
         if(change_x) {
             if(vector.x < 0)    { out_vec.x = -magnitude }
