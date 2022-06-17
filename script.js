@@ -208,11 +208,13 @@ class Rectangle {
             // * (t_inv_mass / (c_inv_mass + t_inv_mass))
         }
         
+        /*
         for(const o of objects) {
             if(Rectangle.overlaps(target, o)) {
                 Rectangle.collide(target, o)
             }
         }
+        */
     }
 
     static overlaps(current, target) {
