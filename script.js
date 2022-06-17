@@ -222,7 +222,7 @@ function down_raycast(current, distance) {
             &&  current.position.x + current.width / 2
             >   target.position.x - target.width / 2
             
-            &&  current.int_position.y > target.int_position.y
+            &&  current.position.y > target.position.y
             &&  Math.abs(
                     (target.position.y + target.height / 2)
                 -   (current.position.y - current.height / 2)
