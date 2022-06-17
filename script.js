@@ -209,8 +209,8 @@ class Rectangle {
         }
         
         for(const o of objects) {
-            if(overlaps(target, o)) {
-                collide(target, o)
+            if(Rectangle.overlaps(target, o)) {
+                Rectangle.collide(target, o)
             }
         }
     }
@@ -445,6 +445,6 @@ onload = () => {
     objects.push(new Rectangle(30, 10, -80, 5))
     objects.push(new Rectangle(10, 10, 0, 100))
 
-    requestAnimationFrame(draw)
     setInterval(physics_loop, fixed_delta_time)
+    requestAnimationFrame(draw)
 }
