@@ -7,7 +7,7 @@ let gravity             = 0.05
 let friction            = 0.1 // 0..1
 let bounce              = 0.5 // 0..1
 let grounding_distance  = 1
-let slack_depth         = 0.1
+let slack_depth         = 0.01
 
 let move_force          = 0.15
 let jump_force          = 1.1
@@ -24,8 +24,10 @@ const camera_offset_history         = []
 let background_color    = "#353535"
 let foreground_color    = "#e3e3e3"
 
-let swipe_threshold         = 30;
-let delta_swipe_sensitivity = 5;
+let swipe_threshold         = 30
+let delta_swipe_sensitivity = 5
+
+let paused = false
 
 
 
@@ -240,6 +242,8 @@ function down_raycast(current, distance) {
 
 
 function physics_loop() {
+    if(paused) { return }
+    
     for(const current of objects) {
         if(current.is_immovable) { continue }
 
@@ -364,9 +368,10 @@ onkeydown = (e) => {
     else            { e.preventDefault() }
 
     switch(e.key.toLowerCase()) {
-        case "w": jumping       = true; break
-        case "a": moving_left   = true; break
-        case "d": moving_right  = true; break
+        case "escape"   : paused        = !paused; break
+        case "w"        : jumping       = true; break
+        case "a"        : moving_left   = true; break
+        case "d"        : moving_right  = true
     }
 }
 
@@ -376,7 +381,7 @@ onkeyup = (e) => {
     switch(e.key.toLowerCase()) {
         case "w": jumping       = false; break
         case "a": moving_left   = false; break
-        case "d": moving_right  = false; break
+        case "d": moving_right  = false
     }
 }
 
