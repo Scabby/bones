@@ -291,17 +291,19 @@ function physics_loop() {
 
 
 function get_camera_offset(target) {
-    let camera_offset   = new Vector(target.position.x, target.position.y)
-    let average         = new Vector(0, 0)
-    let velocity_offset = new Vector(
-        target.velocity.x * camera_offset_multiplier,
-        target.velocity.y * camera_offset_multiplier
+    let camera_offset = new Vector(
+        target.position.x - canvas.width / 2,
+        target.position.y - canvas.height / 2
     )
-
-    camera_offset.x -= canvas.width / 2
-    camera_offset.y -= canvas.height / 2
-
-    velocity_offset = Vector.clamp_axes(velocity_offset, max_camera_offset)
+    
+    let velocity_offset = Vector.clamp_axes(
+        new Vector(
+            target.velocity.x * camera_offset_multiplier,
+            target.velocity.y * camera_offset_multiplier
+        ), max_camera_offset
+    )
+    
+    let average = new Vector(0, 0)
 
     while(camera_offset_history.length >= camera_offset_history_length) {
         camera_offset_history.pop()
