@@ -3,6 +3,9 @@ let moving_right        = false
 let jumping             = false
 let crouching           = false
 
+crouching_height    = 8
+standing_height     = 16
+
 let fixed_delta_time    = 16
 let gravity             = 0.05
 let friction            = 0.1 // 0..1
@@ -244,8 +247,17 @@ function down_raycast(current, distance) {
 function physics_loop() {
     if(paused) { return }
     
-    if(crouching)   { player.height = 8 }
-    else            { player.height = 16 }
+    if(crouching) {
+        if(!player.crouching) {
+            player.height       = crouching_height
+            player.crouching    = true
+        }
+    else {
+        if(player.crouching) {
+            player.height       = standing_height
+            player.crouching    = false
+        }
+    }
     
     for(const current of objects) {
         if(current.is_immovable) { continue }
@@ -435,9 +447,21 @@ onload = () => {
     canvas  = document.getElementsByTagName("canvas")[0]
     ctx     = canvas.getContext("2d")
 
-    player  = new Rectangle(16, 16, 0, 8, 1, 0, 0, false, true)
-
-    current_camera_offset = get_camera_offset(player)
+    player = new Rectangle(
+        16,
+        standing_height,
+        0,
+        standing_height / 2,
+        1,
+        0,
+        0,
+        false,
+        true
+    )
+    
+    player.jumping          = false
+    player.crouching        = false
+    current_camera_offset   = get_camera_offset(player)
 
     objects.push(player)
     objects.push(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
