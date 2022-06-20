@@ -329,13 +329,15 @@ function get_camera_offset(target) {
         ), max_camera_offset
     )
     
+    last_player_position = player.position
+    
     let average = new Vector(0, 0)
 
     while(camera_offset_history.length >= camera_offset_history_length) {
         camera_offset_history.pop()
     }
     camera_offset_history.unshift(velocity_offset)
-
+    
     for(let i = 0; i < camera_offset_history.length; i++) {
         average = Vector.add(average, camera_offset_history[i])
     }
@@ -344,8 +346,6 @@ function get_camera_offset(target) {
         camera_offset.x + average.x / camera_offset_history.length,
         camera_offset.y + average.y / camera_offset_history.length
     )
-    
-    last_player_position = player.position
 }
 
 function draw() {
