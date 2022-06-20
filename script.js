@@ -313,8 +313,8 @@ function physics_loop() {
 
 function get_camera_offset(target) {
     let camera_offset = new Vector(
-        target.position.x - canvas.width / 2,
-        target.position.y - canvas.height / 2
+        target.position.x - canvas_width / 2,
+        target.position.y - canvas_height / 2
     )
     
     let delta_position = new Point(
@@ -350,7 +350,7 @@ function get_camera_offset(target) {
 
 function draw() {
     ctx.fillStyle = background_color
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillRect(0, 0, canvas_width, canvas_height)
     ctx.fillStyle = foreground_color
 
     for(const o of objects) {
@@ -361,7 +361,7 @@ function draw() {
                 -   current_camera_offset.x
             ),
             Math.floor(
-                    canvas.height
+                    canvas_height
                 -   o.position.y
                 -   (o.height / 2)
                 +   current_camera_offset.y
@@ -450,8 +450,10 @@ document.addEventListener("touchend", (e) => {
 
 
 onload = () => {
-    canvas  = document.getElementsByTagName("canvas")[0]
-    ctx     = canvas.getContext("2d")
+    canvas          = document.getElementsByTagName("canvas")[0]
+    canvas_width    = canvas.width
+    canvas_height   = canvas.height
+    ctx             = canvas.getContext("2d")
 
     player = new Rectangle(
         16,
