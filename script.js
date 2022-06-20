@@ -23,7 +23,8 @@ const camera_offset_history         = []
 
 
 
-let swipe_threshold = 15;
+let swipe_threshold         = 30;
+let delta_swipe_sensitivity = 5;
 
 
 
@@ -387,8 +388,9 @@ document.addEventListener("touchmove", (e) => {
 
     let swipe       = new Vector(e.touches[0].pageX, e.touches[0].pageY)
     let distance    = Vector.subtract(swipe, last_swipe)
-    let angle       = Math.atan2(distance.x, distance.y) / Math.PI
+    let angle       = Math.atan2(distance.x, distance.y * delta_swipe_sensitivity) / Math.PI
 
+    last_swipe.y    = swipe.y // jumps are determined by dy
     jumping         = false
     moving_left     = false
     moving_right    = false
