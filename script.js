@@ -25,7 +25,7 @@ let background_color    = "#353535"
 let foreground_color    = "#e3e3e3"
 
 let swipe_threshold         = 30
-let delta_swipe_sensitivity = 1
+let delta_swipe_sensitivity = 3
 
 let paused = false
 
