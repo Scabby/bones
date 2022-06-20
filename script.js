@@ -7,6 +7,7 @@ let gravity             = 0.05
 let friction            = 0.1 // 0..1
 let bounce              = 0.5 // 0..1
 let grounding_distance  = 1
+let slack_depth         = 0.1
 
 let move_force          = 0.15
 let jump_force          = 1.1
@@ -143,26 +144,26 @@ class Rectangle {
         let x_diff = current.position.x - target.position.x
         let y_diff = current.position.y - target.position.y
 
-        let is_x =  Math.abs(x_diff / (current.width + target.width))
-                >   Math.abs(y_diff / (current.height + target.height))
+        let is_x =  Math.abs(x_diff / (current.width + target.width - slack_depth * 4))
+                >   Math.abs(y_diff / (current.height + target.height - slack_depth * 4))
 
         let x_overlap = 0
         let y_overlap = 0
 
         if(x_diff > 0)  {
-            x_overlap = (target.position.x + target.width / 2)
-                    -   (current.position.x - current.width / 2)
+            x_overlap = (target.position.x + target.width / 2 - slack_depth)
+                    -   (current.position.x - current.width / 2 + slack_depth)
         } else {
-            x_overlap = (target.position.x - target.width / 2)
-                    -   (current.position.x + current.width / 2)
+            x_overlap = (target.position.x - target.width / 2 + slack_depth)
+                    -   (current.position.x + current.width / 2 - slack_depth)
         }
 
         if(y_diff > 0)  {
-            y_overlap = (target.position.y + target.height / 2)
-                    -   (current.position.y - current.height / 2)
+            y_overlap = (target.position.y + target.height / 2 - slack_depth)
+                    -   (current.position.y - current.height / 2 + slack_depth)
         } else {
-            y_overlap = (target.position.y - target.height / 2)
-                    -   (current.position.y + current.height / 2)
+            y_overlap = (target.position.y - target.height / 2 + slack_depth)
+                    -   (current.position.y + current.height / 2 - slack_depth)
         }
 
         if(target.is_immovable) {
@@ -205,10 +206,14 @@ class Rectangle {
     }
 
     static overlaps(current, target) {
-        return  current.position.x - current.width / 2   < target.position.x + target.width / 2
-            &&  current.position.x + current.width / 2   > target.position.x - target.width / 2
-            &&  current.position.y - current.height / 2  < target.position.y + target.height / 2
-            &&  current.position.y + current.height / 2  > target.position.y - target.height / 2
+        return  current.position.x  - current.width / 2     + slack_depth
+            <   target.position.x   + target.width / 2      - slack_depth
+            &&  current.position.x  + current.width / 2     - slack_depth
+            >   target.position.x   - target.width / 2      + slack_depth
+            &&  current.position.y  - current.height / 2    + slack_depth
+            <   target.position.y   + target.height / 2     - slack_depth
+            &&  current.position.y  + current.height / 2    - slack_depth
+            >   target.position.y   - target.height / 2     + slack_depth
     }
 }
 
@@ -218,10 +223,8 @@ function down_raycast(current, distance) {
 
         if(     current.position.x - current.width / 2
             <   target.position.x + target.width / 2
-
             &&  current.position.x + current.width / 2
             >   target.position.x - target.width / 2
-
             &&  current.position.y > target.position.y
             &&  Math.abs(
                     (target.position.y + target.height / 2)
