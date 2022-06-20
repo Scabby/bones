@@ -11,7 +11,7 @@ let grounding_distance  = 1
 let move_force          = 0.15
 let jump_force          = 1.1
 let max_velocity        = 10
-let stop_velocity       = 0.1
+let stop_velocity       = 0.11
 
 const objects = []
 
@@ -23,7 +23,7 @@ const camera_offset_history         = []
 
 
 
-let swipe_threshold = 10;
+let swipe_threshold = 15;
 
 
 
@@ -62,22 +62,22 @@ class Vector {
 
         return out_vec
     }
-    
+
     static clamp_axes(vector, magnitude) {
         let change_x    = Math.abs(vector.x) >= magnitude
         let change_y    = Math.abs(vector.y) >= magnitude
         let out_vec     = new Vector(vector.x, vector.y)
-        
+
         if(change_x) {
             if(vector.x < 0)    { out_vec.x = -magnitude }
             else                { out_vec.x = magnitude }
         }
-        
+
         if(change_y) {
             if(vector.y < 0)    { out_vec.y = -magnitude }
             else                { out_vec.y = magnitude }
         }
-        
+
         return out_vec
     }
 
@@ -101,8 +101,8 @@ class Vector {
         return new Vector(vector.x + other.x, vector.y + other.y)
     }
 
-    static substract(vector, other) {
-        return new Vector(vector.x - other.x, vector.y -= other.y)
+    static subtract(vector, other) {
+        return new Vector(vector.x - other.x, vector.y - other.y)
     }
 }
 
@@ -142,9 +142,8 @@ class Rectangle {
         let x_diff = current.position.x - target.position.x
         let y_diff = current.position.y - target.position.y
 
-        // fix
-        let is_x =  Math.abs(x_diff / (current.width - target.width))
-                >   Math.abs(y_diff / (current.height - target.height))
+        let is_x =  Math.abs(x_diff / (current.width + target.width))
+                >   Math.abs(y_diff / (current.height + target.height))
 
         let x_overlap = 0
         let y_overlap = 0
@@ -215,13 +214,13 @@ class Rectangle {
 function down_raycast(current, distance) {
     for(const target of objects) {
         if(current === target) { continue }
-        
+
         if(     current.position.x - current.width / 2
             <   target.position.x + target.width / 2
-           
+
             &&  current.position.x + current.width / 2
             >   target.position.x - target.width / 2
-            
+
             &&  current.position.y > target.position.y
             &&  Math.abs(
                     (target.position.y + target.height / 2)
@@ -253,12 +252,12 @@ function physics_loop() {
 
         if(is_grounded) {
             new_vel.x -= new_vel.x * friction
-            
+
             if(new_vel.y < stop_velocity && new_vel.y > -stop_velocity) {
                 new_vel.y = 0
                 current.position.y = Math.round(current.position.y)
             }
-            
+
             if(new_vel.x < stop_velocity && new_vel.x > -stop_velocity) {
                 new_vel.x = 0
                 current.position.x = Math.round(current.position.x)
@@ -284,7 +283,7 @@ function physics_loop() {
         current.velocity = Vector.clamp_axes(current.velocity, max_velocity)
         current.move()
     }
-    
+
     current_camera_offset = get_camera_offset(player)
 }
 
@@ -356,10 +355,10 @@ onkeydown = (e) => {
         ||  e.key == "="
         ||  e.key == "+"
     )
-    
-    if(is_resize)   { return } 
+
+    if(is_resize)   { return }
     else            { e.preventDefault() }
-    
+
     switch(e.key.toLowerCase()) {
         case "w": jumping       = true; break
         case "a": moving_left   = true; break
@@ -390,30 +389,32 @@ document.addEventListener("touchmove", (e) => {
     let distance    = Vector.subtract(swipe, last_swipe)
     let angle       = Math.atan2(distance.x, distance.y) / Math.PI
 
+    jumping         = false
+    moving_left     = false
+    moving_right    = false
+
     if(Vector.magnitude(distance) < swipe_threshold) { return }
 
-    console.log(distance)
-
     if(angle < 0) {
-        if(angle > -1/8)        { jumping = true }
-        else if(angle > -3/8)   { jumping = true; moving_left = true}
+        if(angle > -1/8)        { /**/ }
+        else if(angle > -3/8)   { moving_left = true; /**/}
         else if(angle > -5/8)   { moving_left = true }
-        else if(angle > -7/8)   { moving_left = true; /**/ }
-        else                    { /**/ }
+        else if(angle > -7/8)   { jumping = true; moving_left = true }
+        else                    { jumping = true }
     } else {
-        if(angle < 1/8)         { jumping = true }
-        else if(angle < 3/8)    { jumping = true; moving_right = true }
+        if(angle < 1/8)         { /**/ }
+        else if(angle < 3/8)    { moving_right = true; /**/ }
         else if(angle < 5/8)    { moving_right = true }
-        else if(angle < 7/8)    { moving_right = true; /**/ }
-        else                    { /**/ }
+        else if(angle < 7/8)    { jumping = true; moving_right = true }
+        else                    { jumping = true }
     }
 
-    last_swipe = swipe
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
     e.preventDefault()
 
+    last_swipe      = null
     jumping         = false
     moving_right    = false
     moving_left     = false
@@ -426,11 +427,12 @@ onload = () => {
     ctx     = canvas.getContext("2d")
 
     player  = new Rectangle(16, 16, 0, 8, 1, 0, 0, false, true)
-    
+
     current_camera_offset = get_camera_offset(player)
 
     objects.push(player)
     objects.push(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
+    objects.push(new Rectangle(250, 10, 0, 100, 0, 0, 0, true))
     objects.push(new Rectangle(10, 20, 50, 10))
     objects.push(new Rectangle(30, 10, -80, 5))
     objects.push(new Rectangle(10, 10, 0, 100))
