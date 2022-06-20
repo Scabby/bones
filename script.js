@@ -182,14 +182,14 @@ class Rectangle {
             )
 
             if(is_x) {
-                current.position.x  += x_overlap
-                target.position.x   -= x_overlap
+                current.position.x  += x_overlap / 2
+                target.position.x   -= x_overlap / 2
 
                 current.velocity.x  = average.x
                 target.velocity.x   = average.x
             } else {
-                current.position.y  += y_overlap
-                target.position.y   -= y_overlap
+                current.position.y  += y_overlap / 2
+                target.position.y   -= y_overlap / 2
 
                 current.velocity.y  = average.y
                 target.velocity.y   = average.y
