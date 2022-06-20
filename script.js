@@ -373,6 +373,7 @@ onkeydown = (e) => {
     switch(e.key.toLowerCase()) {
         case "escape"   : paused        = !paused; break
         case "w"        : jumping       = true; break
+        case "s"        : crouching     = true; break
         case "a"        : moving_left   = true; break
         case "d"        : moving_right  = true
     }
@@ -383,6 +384,7 @@ onkeyup = (e) => {
 
     switch(e.key.toLowerCase()) {
         case "w": jumping       = false; break
+        case "s": crouching     = false; break
         case "a": moving_left   = false; break
         case "d": moving_right  = false
     }
