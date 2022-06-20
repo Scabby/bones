@@ -324,8 +324,8 @@ function get_camera_offset(target) {
     
     let velocity_offset = Vector.clamp_axes(
         new Vector(
-            delta_position * camera_offset_multiplier,
-            delta_position * camera_offset_multiplier
+            delta_position.x * camera_offset_multiplier,
+            delta_position.y * camera_offset_multiplier
         ), max_camera_offset
     )
     
