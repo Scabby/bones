@@ -243,6 +243,9 @@ function down_raycast(current, distance) {
 function physics_loop() {
     if(paused) { return }
     
+    if(crouching)   { player.height = 8 }
+    else            { player.height = 16 }
+    
     for(const current of objects) {
         if(current.is_immovable) { continue }
 
@@ -393,31 +396,24 @@ document.addEventListener("touchstart", (e) => {
 document.addEventListener("touchmove", (e) => {
     e.preventDefault()
 
-    let swipe       = new Vector(e.touches[0].pageX, e.touches[0].pageY)
-    let distance    = Vector.subtract(swipe, last_swipe)
-    let angle       = Math.atan2(distance.x, distance.y * delta_swipe_sensitivity) / Math.PI
-
-    last_swipe.y    = swipe.y // jumps are determined by dy
+    let swipe   = new Vector(e.touches[0].pageX, e.touches[0].pageY)
+    let dx      = swipe.x - last_swipe.x
+    let dy      = swipe.y - last_swipe.y
+    
     jumping         = false
+    crouching       = false
     moving_left     = false
     moving_right    = false
 
-    if(Vector.magnitude(distance) < swipe_threshold) { return }
-
-    if(angle < 0) {
-        if(angle > -1/8)        { /**/ }
-        else if(angle > -3/8)   { moving_left = true; /**/}
-        else if(angle > -5/8)   { moving_left = true }
-        else if(angle > -7/8)   { jumping = true; moving_left = true }
-        else                    { jumping = true }
-    } else {
-        if(angle < 1/8)         { /**/ }
-        else if(angle < 3/8)    { moving_right = true; /**/ }
-        else if(angle < 5/8)    { moving_right = true }
-        else if(angle < 7/8)    { jumping = true; moving_right = true }
-        else                    { jumping = true }
+    if(Math.abs(dx) >= swipe_threshold) {
+        if(dx > 0)  { moving_right  = true }
+        else        { moving_left   = true }
     }
-
+    
+    if(Math.abs(dy) >= swipe_threshold) {
+        if(dy > 0)  { jumping   = true }
+        else        { crouching = true }
+    }
 }, { passive: false } )
 
 document.addEventListener("touchend", (e) => {
@@ -425,6 +421,7 @@ document.addEventListener("touchend", (e) => {
 
     last_swipe      = null
     jumping         = false
+    crouching       = false
     moving_right    = false
     moving_left     = false
 }, { passive: false } )
