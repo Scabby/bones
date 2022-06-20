@@ -426,7 +426,7 @@ document.addEventListener("touchmove", (e) => {
     }
     
     if(Math.abs(dy) >= swipe_threshold) {
-        if(dy > 0)  { jumping   = true }
+        if(dy < 0)  { jumping   = true }
         else        { crouching = true }
     }
 }, { passive: false } )
