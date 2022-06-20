@@ -1,6 +1,7 @@
 let moving_left         = false
 let moving_right        = false
 let jumping             = false
+let crouching           = false
 
 let fixed_delta_time    = 16
 let gravity             = 0.05
