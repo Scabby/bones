@@ -294,8 +294,8 @@ function get_camera_offset(target) {
     let camera_offset   = new Vector(target.position.x, target.position.y)
     let average         = new Vector(0, 0)
     let velocity_offset = new Vector(
-        Math.round(target.velocity.x * camera_offset_multiplier),
-        Math.round(target.velocity.y * camera_offset_multiplier)
+        target.velocity.x * camera_offset_multiplier,
+        target.velocity.y * camera_offset_multiplier
     )
 
     camera_offset.x -= canvas.width / 2
@@ -313,8 +313,8 @@ function get_camera_offset(target) {
     }
 
     return new Vector(
-        Math.round(camera_offset.x + average.x / camera_offset_history.length),
-        Math.round(camera_offset.y + average.y / camera_offset_history.length)
+        camera_offset.x + average.x / camera_offset_history.length,
+        camera_offset.y + average.y / camera_offset_history.length
     )
 }
 
@@ -326,17 +326,15 @@ function draw() {
     for(const o of objects) {
         ctx.fillRect(
             Math.floor(
-                    Math.round(o.position.x)
+                    o.position.x
                 -   (o.width / 2)
                 -   current_camera_offset.x
-                +   0.5
             ),
             Math.floor(
                     canvas.height
-                -   Math.round(o.position.y)
+                -   o.position.y
                 -   (o.height / 2)
                 +   current_camera_offset.y
-                +   0.5
             ),
             Math.floor(o.width),
             Math.floor(o.height),
