@@ -258,7 +258,7 @@ function physics_loop() {
                     player.position.y   -= (standing_height - crouching_height) / 2
                     player.crouching    = true
                 }
-            else {
+            } else {
                 if(player.crouching) {
                     player.height       = standing_height
                     player.position.y   += (standing_height - crouching_height) / 2
