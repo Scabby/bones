@@ -317,10 +317,15 @@ function get_camera_offset(target) {
         target.position.y - canvas.height / 2
     )
     
+    let delta_position = new Point(
+        target.position.x - last_player_position.x,
+        target.position.y - last_player_position.y
+    )
+    
     let velocity_offset = Vector.clamp_axes(
         new Vector(
-            target.velocity.x * camera_offset_multiplier,
-            target.velocity.y * camera_offset_multiplier
+            delta_position * camera_offset_multiplier,
+            delta_position * camera_offset_multiplier
         ), max_camera_offset
     )
     
@@ -339,6 +344,8 @@ function get_camera_offset(target) {
         camera_offset.x + average.x / camera_offset_history.length,
         camera_offset.y + average.y / camera_offset_history.length
     )
+    
+    last_player_position = player.position
 }
 
 function draw() {
@@ -456,6 +463,8 @@ onload = () => {
         0,
         false
     )
+    
+    last_player_position = player.position
     
     player.jumping          = false
     player.crouching        = false
