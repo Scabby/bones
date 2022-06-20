@@ -15,13 +15,13 @@ let stop_velocity       = 0.11
 
 const objects = []
 
-
 let max_camera_offset               = 32
 let camera_offset_multiplier        = 10
 let camera_offset_history_length    = 15
 const camera_offset_history         = []
 
-
+let background_color    = "#353535"
+let foreground_color    = "#e3e3e3"
 
 let swipe_threshold         = 30;
 let delta_swipe_sensitivity = 5;
@@ -319,9 +319,9 @@ function get_camera_offset(target) {
 }
 
 function draw() {
-    ctx.fillStyle = "#353535"
+    ctx.fillStyle = background_color
     ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = "#e3e3e3"
+    ctx.fillStyle = foreground_color
 
     for(const o of objects) {
         ctx.fillRect(
