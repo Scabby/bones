@@ -122,8 +122,7 @@ class Rectangle {
         mass            = 1,
         velocity_x      = 0,
         velocity_y      = 0,
-        is_immovable    = false,
-        is_player       = false
+        is_immovable    = false
     ) {
         this.width          = width
         this.height         = height
@@ -131,7 +130,6 @@ class Rectangle {
         this.position       = new Point(x, y),
         this.velocity       = new Vector(velocity_x, velocity_y),
         this.is_immovable   = is_immovable
-        this.is_player      = is_player
     }
 
     add_force(vector) {
@@ -247,27 +245,27 @@ function down_raycast(current, distance) {
 function physics_loop() {
     if(paused) { return }
     
-    if(crouching) {
-        if(!player.crouching) {
-            player.height       = crouching_height
-            player.position.y   -= (standing_height - crouching_height) / 2
-            player.crouching    = true
-        }
-    else {
-        if(player.crouching) {
-            player.height       = standing_height
-            player.position.y   += (standing_height - crouching_height) / 2
-            player.crouching    = false
-        }
-    }
-    
     for(const current of objects) {
         if(current.is_immovable) { continue }
 
         let new_vel     = new Vector(current.velocity.x, current.velocity.y)
         let is_grounded = down_raycast(current, grounding_distance)
 
-        if(current.is_player) {
+        if(current === player) {
+            if(crouching) {
+                if(!player.crouching) {
+                    player.height       = crouching_height
+                    player.position.y   -= (standing_height - crouching_height) / 2
+                    player.crouching    = true
+                }
+            else {
+                if(player.crouching) {
+                    player.height       = standing_height
+                    player.position.y   += (standing_height - crouching_height) / 2
+                    player.crouching    = false
+                }
+            }
+                
             if(is_grounded) {
                 if(moving_left)     { new_vel.x -= move_force }
                 if(moving_right)    { new_vel.x += move_force }
@@ -457,8 +455,7 @@ onload = () => {
         1,
         0,
         0,
-        false,
-        true
+        false
     )
     
     player.jumping          = false
