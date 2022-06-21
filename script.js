@@ -20,7 +20,7 @@ let stop_velocity       = 0.05
 const objects = []
 
 let max_camera_offset               = 32
-let camera_offset_multiplier        = 0
+let camera_offset_multiplier        = 100
 let camera_offset_history_length    = 25
 const camera_offset_history         = []
 
@@ -360,12 +360,12 @@ function draw() {
 
     for(const o of objects) {
         ctx.fillRect(
-            Math.floor(
+            Math.round(
                     o.position.x
                 -   (o.width / 2)
                 -   current_camera_offset.x
             ),
-            Math.floor(
+            Math.round(
                     canvas_height
                 -   o.position.y
                 -   (o.height / 2)
