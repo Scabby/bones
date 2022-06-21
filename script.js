@@ -20,7 +20,7 @@ let stop_velocity       = 0.05
 const objects = []
 
 let max_camera_offset               = 32
-let camera_offset_multiplier        = 20
+let camera_offset_multiplier        = 15
 let camera_offset_history_length    = 25
 const camera_offset_history         = []
 
