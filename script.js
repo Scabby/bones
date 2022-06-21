@@ -171,12 +171,11 @@ class Rectangle {
         if(target.is_immovable) {
             if(is_x) {
                 current.position.x += x_overlap
-                //current.velocity.x *= -bounce
-                current.velocity.x = 0
+                current.velocity.x *= -bounce
             } else {
                 current.position.y += y_overlap
-                //current.velocity.y *= -bounce
-                current.velocity.y = 0
+                if(y_diff > 0)  { current.velocity.y = 0 }
+                else            { current.velocity.y *= -bounce }
             }
         } else {
             let average = new Point(
