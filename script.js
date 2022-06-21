@@ -220,6 +220,8 @@ class Rectangle {
 }
 
 function down_boxcast(current, distance) {
+    let intersections = []
+    
     for(const target of objects) {
         if(current === target) { continue }
 
@@ -233,18 +235,19 @@ function down_boxcast(current, distance) {
                 -   (current.position.y - current.height / 2)
                 ) <= distance
         ) {
-            return true
+            intersections.push(target)
         }
     }
-    return false
+    return intersections
 }
 
 function up_boxcast(current, distance) {
+    let intersections = []
+    
     for(const target of objects) {
         if(current === target) { continue }
 
-        if(     target.is_immovable
-            &&  current.position.x - current.width / 2
+        if(     current.position.x - current.width / 2
             <   target.position.x + target.width / 2
             &&  current.position.x + current.width / 2
             >   target.position.x - target.width / 2
@@ -254,10 +257,10 @@ function up_boxcast(current, distance) {
                 -   (current.position.y + current.height / 2)
                 ) <= distance
         ) {
-            return true
+            intersections.push(target)
         }
     }
-    return false
+    return intersections
 }
 
 
@@ -270,10 +273,12 @@ function physics_loop() {
         if(current.is_immovable) { continue }
 
         let new_vel     = new Vector(current.velocity.x, current.velocity.y)
-        let is_grounded = down_boxcast(current, grounding_distance)
+        let is_grounded = down_boxcast(current, grounding_distance).length > 0
 
         if(current === player) {
-            let can_stand = !up_boxcast(player, standing_height - player.height)
+            let can_stand = up_boxcast(player, standing_height - player.height)
+                                .filter(o => o.is_immovable)
+                                .length === 0
             
             if(crouching) {
                 if(!player.crouching) {
