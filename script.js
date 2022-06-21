@@ -21,7 +21,7 @@ const objects = []
 
 let max_camera_offset               = 32
 let camera_offset_multiplier        = 15
-let camera_offset_history_length    = 25
+let camera_offset_history_length    = 17
 const camera_offset_history         = []
 
 let background_color    = "#353535"
