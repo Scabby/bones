@@ -511,7 +511,7 @@ onload = () => {
     objects.unshift(new Rectangle(20, 86, 85, 53, 0, 0, 0, true))
     objects.unshift(new Rectangle(10, 20, 50, 10))
     objects.unshift(new Rectangle(30, 10, -80, 5))
-    objects.unshift(new Rectangle(10, 10, 0, 100))
+    objects.unshift(new Rectangle(10, 10, 0, 80))
 
     requestAnimationFrame(draw)
     setInterval(physics_loop, fixed_delta_time)
