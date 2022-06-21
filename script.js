@@ -9,7 +9,7 @@ standing_height     = 16
 let fixed_delta_time    = 16
 let gravity             = 0.05
 let friction            = 0.1 // 0..1
-let bounce              = 0.1 // 0..1
+let bounce              = 0.2 // 0..1
 let grounding_distance  = 1
 
 let move_force          = 0.15
