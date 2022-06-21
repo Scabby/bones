@@ -480,6 +480,7 @@ onload = () => {
     objects.push(player)
     objects.unshift(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
     objects.unshift(new Rectangle(250, 10, 0, 100, 0, 0, 0, true))
+    objects.unshift(new Rectangle(20, 86, 85, 53, 0, 0, 0, true))
     objects.unshift(new Rectangle(10, 20, 50, 10))
     objects.unshift(new Rectangle(30, 10, -80, 5))
     objects.unshift(new Rectangle(10, 10, 0, 100))
