@@ -219,7 +219,7 @@ class Rectangle {
     }
 }
 
-function down_raycast(current, distance) {
+function down_boxcast(current, distance) {
     for(const target of objects) {
         if(current === target) { continue }
 
@@ -239,6 +239,27 @@ function down_raycast(current, distance) {
     return false
 }
 
+function up_boxcast(current, distance) {
+    for(const target of objects) {
+        if(current === target) { continue }
+
+        if(     current.position.x - current.width / 2
+            <   target.position.x + target.width / 2
+            &&  current.position.x + current.width / 2
+            >   target.position.x - target.width / 2
+            &&  current.position.y < target.position.y
+            &&  Math.abs(
+                    (target.position.y + target.height / 2)
+                -   (current.position.y - current.height / 2)
+                ) <= distance
+        ) {
+            return true
+        }
+    }
+    return false
+}
+
+
 
 
 function physics_loop() {
@@ -248,9 +269,11 @@ function physics_loop() {
         if(current.is_immovable) { continue }
 
         let new_vel     = new Vector(current.velocity.x, current.velocity.y)
-        let is_grounded = down_raycast(current, grounding_distance)
+        let is_grounded = down_boxcast(current, grounding_distance)
 
         if(current === player) {
+            let can_stand = !up_boxcast(player, standing_height - player.height)
+            
             if(crouching) {
                 if(!player.crouching) {
                     player.height       = crouching_height
@@ -258,7 +281,7 @@ function physics_loop() {
                     player.crouching    = true
                 }
             } else {
-                if(player.crouching) {
+                if(player.crouching && can_stand) {
                     player.height       = standing_height
                     player.position.y   += (standing_height - crouching_height) / 2
                     player.crouching    = false
