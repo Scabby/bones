@@ -243,14 +243,15 @@ function up_boxcast(current, distance) {
     for(const target of objects) {
         if(current === target) { continue }
 
-        if(     current.position.x - current.width / 2
+        if(     target.is_immovable
+            &&  current.position.x - current.width / 2
             <   target.position.x + target.width / 2
             &&  current.position.x + current.width / 2
             >   target.position.x - target.width / 2
             &&  current.position.y < target.position.y
             &&  Math.abs(
-                    (target.position.y + target.height / 2)
-                -   (current.position.y - current.height / 2)
+                    (target.position.y - target.height / 2)
+                -   (current.position.y + current.height / 2)
                 ) <= distance
         ) {
             return true
