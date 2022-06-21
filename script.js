@@ -15,13 +15,13 @@ let grounding_distance  = 1
 let move_force          = 0.15
 let jump_force          = 1.1
 let max_velocity        = 10
-let stop_velocity       = 0.11
+let stop_velocity       = 0.05
 
 const objects = []
 
 let max_camera_offset               = 32
-let camera_offset_multiplier        = 10
-let camera_offset_history_length    = 15
+let camera_offset_multiplier        = 0
+let camera_offset_history_length    = 25
 const camera_offset_history         = []
 
 let background_color    = "#353535"
@@ -243,7 +243,7 @@ function down_raycast(current, distance) {
 
 function physics_loop() {
     if(paused) { return }
-    
+
     for(const current of objects) {
         if(current.is_immovable) { continue }
 
@@ -264,7 +264,7 @@ function physics_loop() {
                     player.crouching    = false
                 }
             }
-                
+
             if(is_grounded) {
                 if(moving_left)     { new_vel.x -= move_force }
                 if(moving_right)    { new_vel.x += move_force }
@@ -306,38 +306,43 @@ function physics_loop() {
         current.move()
     }
 
-    current_camera_offset = get_camera_offset(player)
+    current_camera_offset   = get_camera_offset(player)
 }
 
 
 
-function get_camera_offset(target) {
+function get_camera_offset() {
+    let crouch_offset = (standing_height - player.height) / 2
+
     let camera_offset = new Vector(
-        target.position.x - canvas_width / 2,
-        target.position.y - canvas_height / 2
+        player.position.x - canvas_width / 2,
+        player.position.y - canvas_height / 2 + crouch_offset
     )
-    
+
     let delta_position = new Point(
-        target.position.x - last_player_position.x,
-        target.position.y - last_player_position.y
+        player.position.x - last_player_position.x,
+        player.position.y - last_player_position.y + crouch_offset
     )
-    
+
     let velocity_offset = Vector.clamp_axes(
         new Vector(
             delta_position.x * camera_offset_multiplier,
             delta_position.y * camera_offset_multiplier
         ), max_camera_offset
     )
-    
-    last_player_position = player.position
-    
+
+    last_player_position = new Point(
+        player.position.x,
+        player.position.y + crouch_offset
+    )
+
     let average = new Vector(0, 0)
 
     while(camera_offset_history.length >= camera_offset_history_length) {
         camera_offset_history.pop()
     }
     camera_offset_history.unshift(velocity_offset)
-    
+
     for(let i = 0; i < camera_offset_history.length; i++) {
         average = Vector.add(average, camera_offset_history[i])
     }
@@ -420,7 +425,7 @@ document.addEventListener("touchmove", (e) => {
     let swipe   = new Vector(e.touches[0].pageX, e.touches[0].pageY)
     let dx      = swipe.x - last_swipe.x
     let dy      = swipe.y - last_swipe.y
-    
+
     jumping         = false
     crouching       = false
     moving_left     = false
@@ -430,7 +435,7 @@ document.addEventListener("touchmove", (e) => {
         if(dx > 0)  { moving_right  = true }
         else        { moving_left   = true }
     }
-    
+
     if(Math.abs(dy) >= swipe_threshold) {
         if(dy < 0)  { jumping   = true }
         else        { crouching = true }
@@ -465,19 +470,19 @@ onload = () => {
         0,
         false
     )
-    
+
     last_player_position = player.position
-    
+
     player.jumping          = false
     player.crouching        = false
     current_camera_offset   = get_camera_offset(player)
 
     objects.push(player)
-    objects.push(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
-    objects.push(new Rectangle(250, 10, 0, 100, 0, 0, 0, true))
-    objects.push(new Rectangle(10, 20, 50, 10))
-    objects.push(new Rectangle(30, 10, -80, 5))
-    objects.push(new Rectangle(10, 10, 0, 100))
+    objects.unshift(new Rectangle(250, 10, 0, -5, 0, 0, 0, true))
+    objects.unshift(new Rectangle(250, 10, 0, 100, 0, 0, 0, true))
+    objects.unshift(new Rectangle(10, 20, 50, 10))
+    objects.unshift(new Rectangle(30, 10, -80, 5))
+    objects.unshift(new Rectangle(10, 10, 0, 100))
 
     requestAnimationFrame(draw)
     setInterval(physics_loop, fixed_delta_time)
