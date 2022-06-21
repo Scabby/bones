@@ -272,7 +272,7 @@ function physics_loop() {
         if(current.is_immovable) { continue }
 
         let new_vel     = new Vector(current.velocity.x, current.velocity.y)
-        let is_grounded = down_boxcast(current, grounding_distance).length > 0
+        let standing_on = down_boxcast(current, grounding_distance)
 
         if(current === player) {
             let can_stand = up_boxcast(player, standing_height - player.height)
@@ -293,14 +293,14 @@ function physics_loop() {
                 }
             }
 
-            if(is_grounded) {
+            if(standing_on.length > 0) {
                 if(moving_left)     { new_vel.x -= move_force }
                 if(moving_right)    { new_vel.x += move_force }
                 if(jumping)         { new_vel.y = jump_force }
             }
         }
 
-        if(is_grounded) {
+        if(standing_on.length > 0) {
             new_vel.x -= new_vel.x * friction
 
             if(new_vel.y < stop_velocity && new_vel.y > -stop_velocity) {
