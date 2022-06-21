@@ -294,9 +294,9 @@ function physics_loop() {
             }
 
             if(standing_on.length > 0) {
-                if(moving_left)     { new_vel.x -= move_force }
-                if(moving_right)    { new_vel.x += move_force }
-                if(jumping)         { new_vel.y = jump_force }
+                if(moving_left)             { new_vel.x -= move_force }
+                if(moving_right)            { new_vel.x += move_force }
+                if(jumping && can_stand)    { new_vel.y = jump_force }
             }
         }
 
