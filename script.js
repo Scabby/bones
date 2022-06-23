@@ -409,6 +409,18 @@ function draw() {
 
 
 
+function resize() {
+    if(window.innerHeight / canvas.height > window.innerWidth / canvas.width) {
+        canvas.style.width  = window.innerWidth + "px"
+        canvas.style.height = "auto"
+    } else {
+        canvas.style.height = window.innerHeight + "px"
+        canvas.style.width  = "auto"
+    }
+}
+
+
+
 onkeydown = (e) => {
     let is_ctrl     = navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey
     let is_resize   = is_ctrl && (
@@ -515,4 +527,7 @@ onload = () => {
 
     requestAnimationFrame(draw)
     setInterval(physics_loop, fixed_delta_time)
+    resize()
 }
+
+onresize = resize
